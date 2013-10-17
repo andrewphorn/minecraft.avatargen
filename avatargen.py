@@ -37,6 +37,7 @@ def convert(img,threshold=128):
     t.putdata(newimg) # Put the new image together.
     return t
 
+
 def loadSkinFromFile(path):
     """Loads a skin image from a file, defined by 'path'."""
     if not path.endswith('.png'):
@@ -124,6 +125,7 @@ def getLegs(img):
     tmp = tmp.resize((dim*4,dim*12), Image.NEAREST)
     return tmp
 
+
 def wholeBody(img):
     """Puts together all of the above in order to get a full body image."""
     tmp = Image.new('RGBA',(dim*16,dim*32))
@@ -148,23 +150,36 @@ def wholeBody(img):
 
     return tmp
 
+
 def generateAvatar(img):
     """Generates a full avatar using all of the above."""
-    d = dim*64
-    tmp = Image.new('RGBA',(d+(2*dim),(d+(2*dim)))) # will be resized to half size afterward
+    minsize = 64
+    size = {}
+    size['face'] = dim*8
+
+    # minsize 64 (2*body height)
+    # flow
+    # generate face at full size
+    # generate body at 1/2 size
+    # overlay body over face
+    if size['face'] < minsize:
+        size['face'] = minsize
+
+    size['body'] = 32
+
+
+    tmp = Image.new('RGBA',(size['face'],size['face']))
+
     x = getCompleteHead(img)
     y = wholeBody(img)
 
-    l,o = size(y)
+    x = x.resize((size['face'],size['face']), Image.NEAREST)
+    y = y.resize((size['body']/2,size['body']), Image.NEAREST)
 
-    x = x.resize((d,d), Image.NEAREST)
-    y = y.resize((l,o), Image.NEAREST)
+    coords = (width(x)-((size['body']/2)+(size['face']/16)),height(x)-(size['body']+(size['face']/16)))
 
-    tmp.paste(y,(width(tmp)-(4*dim)-(dim*16),height(tmp)-(4*dim)-(dim*32)))
-    tmp = tmp.resize((d,d), Image.NEAREST)
+    tmp.paste(x)
+    tmp.paste(y,coords,y)
 
-    x.paste(tmp,None,tmp)
-    return x.resize((d/2,d/2), Image.NEAREST)
+    return tmp
 
-dim = 16
-getCompleteHead(loadSkinFromURL('https://s3.amazonaws.com/MinecraftSkins/Notch.png')).save('herpin.png','PNG')
