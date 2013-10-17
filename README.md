@@ -3,6 +3,8 @@ minecraft.avatargen
 
 Avatar generator using minecraft-compatible skins as the input.
 
+**It is not suggested that you use this for anything time-sensitive. It is pretty slow and as such, vigorous caching should be used. In fact, it would probably be better overall if you didn't use this at all :) **
+
 Usage
 -----
 
